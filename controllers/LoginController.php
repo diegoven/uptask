@@ -23,8 +23,6 @@ class LoginController
 
     public static function create(Router $router)
     {
-        echo "from create";
-
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
         }
 
