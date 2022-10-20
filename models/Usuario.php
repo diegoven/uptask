@@ -19,7 +19,7 @@ class Usuario extends ActiveRecord
     }
 
     // Validación para cuentas nuevas
-    public function validarNuevaCueta()
+    public function validarNuevaCuenta()
     {
         if (!$this->nombre) self::$alertas['error'][] = 'El nombre del usuario es obligatorio';
         if (!$this->email) self::$alertas['error'][] = 'El email del usuario es obligatorio';
@@ -27,6 +27,22 @@ class Usuario extends ActiveRecord
         if (!$this->password) self::$alertas['error'][] = 'La contraseña no puede ir vacía';
         else if (strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe contener al menos 6 caracteres';
         else if ($this->password !== $this->password2) self::$alertas['error'][] = 'Las contraseñas no coinciden';
+
+        return self::$alertas;
+    }
+
+    public function validarEmail()
+    {
+        if (!$this->email) self::$alertas['error'][] = 'El correo es obligatorio';
+        else if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) self::$alertas['error'][] = 'El correo es inválido';
+
+        return self::$alertas;
+    }
+
+    public function validarPassword()
+    {
+        if (!$this->password) self::$alertas['error'][] = 'La contraseña no puede ir vacía';
+        else if (strlen($this->password) < 6) self::$alertas['error'][] = 'La contraseña debe contener al menos 6 caracteres';
 
         return self::$alertas;
     }
