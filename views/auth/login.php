@@ -4,6 +4,8 @@
     <div class="contenedor-sm">
         <p class="descripcion-pagina"><?php echo $titulo; ?></p>
 
+        <?php include_once __DIR__ . '/../templates/alertas.php' ?>
+
         <form class="formulario" action="/" method="POST">
             <div class="campo">
                 <label for="email">E-mail:</label>
