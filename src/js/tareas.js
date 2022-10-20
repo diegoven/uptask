@@ -61,6 +61,8 @@
 
       return;
     }
+
+    agregarTarea(tarea);
   }
 
   function mostrarAlerta(mensaje, tipo, referencia) {
@@ -80,5 +82,44 @@
     setTimeout(() => {
       alerta.remove();
     }, 3000);
+  }
+
+  async function agregarTarea(tarea) {
+    // Construir petición
+    const datos = new FormData();
+    datos.append("nombre", tarea);
+    datos.append("proyectoUrl", obtenerProyecto());
+
+    try {
+      const url = "http://localhost:3000/api/task";
+      const respuesta = await fetch(url, {
+        method: "POST",
+        body: datos,
+      });
+      const resultado = await respuesta.json();
+
+      mostrarAlerta(
+        resultado.mensaje,
+        resultado.tipo,
+        document.querySelector(".formulario legend")
+      );
+
+      if (resultado.tipo === "exito") {
+        document.querySelector("#tarea").value = "";
+        const modal = document.querySelector(".modal");
+        setTimeout(() => {
+          modal.remove();
+        }, 3000);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function obtenerProyecto() {
+    const proyectoParams = new URLSearchParams(window.location.search);
+    const proyecto = Object.fromEntries(proyectoParams.entries());
+
+    return proyecto.id;
   }
 })();
