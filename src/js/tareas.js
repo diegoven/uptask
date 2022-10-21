@@ -66,6 +66,9 @@
       btnEliminarTarea.classList.add("eliminar-tarea");
       btnEliminarTarea.dataset.idTarea = tarea.id;
       btnEliminarTarea.textContent = "Eliminar";
+      btnEliminarTarea.onclick = function () {
+        confirmarEliminarTarea({ ...tarea });
+      };
 
       opcionesDiv.appendChild(btnEstadoTarea);
       opcionesDiv.appendChild(btnEliminarTarea);
@@ -238,6 +241,53 @@
 
           return tareaMemoria;
         });
+
+        mostrarTareas();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function confirmarEliminarTarea(tarea) {
+    Swal.fire({
+      title: "¿Eliminar tarea?",
+      showCancelButton: true,
+      confirmButtonText: "Si",
+      cancelButtonText: "No",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        elimninarTarea(tarea);
+      }
+    });
+  }
+
+  async function elimninarTarea(tarea) {
+    const { estado, id, nombre } = tarea;
+
+    const datos = new FormData();
+    datos.append("id", id);
+    datos.append("nombre", nombre);
+    datos.append("estado", estado);
+    datos.append("url", obtenerProyecto());
+
+    const url = "http://localhost:3000/api/task/delete";
+
+    try {
+      const url = "http://localhost:3000/api/task/delete";
+
+      const respuesta = await fetch(url, {
+        method: "POST",
+        body: datos,
+      });
+
+      const resultado = await respuesta.json();
+
+      if (resultado.resultado) {
+        Swal.fire("Eliminado!", resultado.mensaje, "success");
+
+        tareas = tareas.filter((tareaMemoria) => tareaMemoria.id !== tarea.id);
 
         mostrarTareas();
       }
