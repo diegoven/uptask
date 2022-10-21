@@ -82,7 +82,8 @@ class TareaController
                 $respuesta = [
                     'tipo' => 'exito',
                     'id' => $tarea->id,
-                    'proyectoId' => $proyecto->id
+                    'proyectoId' => $proyecto->id,
+                    'mensaje' => 'Actualizado correctamente'
                 ];
 
                 echo json_encode(['respuesta' => $respuesta]);

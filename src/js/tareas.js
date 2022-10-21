@@ -4,7 +4,9 @@
 
   // Botón para mostrar el modal de agregar tarea
   const nuevaTareaBtn = document.querySelector("#agregar-tarea");
-  nuevaTareaBtn.addEventListener("click", mostrarFormulario);
+  nuevaTareaBtn.addEventListener("click", function () {
+    mostrarFormulario();
+  });
 
   async function obtenerTareas() {
     try {
@@ -48,6 +50,9 @@
 
       const nombreTarea = document.createElement("p");
       nombreTarea.textContent = tarea.nombre;
+      nombreTarea.ondblclick = function () {
+        mostrarFormulario(true, { ...tarea });
+      };
 
       const opcionesDiv = document.createElement("div");
       opcionesDiv.classList.add("opciones");
@@ -81,21 +86,34 @@
     });
   }
 
-  function mostrarFormulario() {
+  function mostrarFormulario(editar = false, tarea = {}) {
     const modal = document.createElement("div");
     modal.classList.add("modal");
 
     modal.innerHTML = /*html*/ `
         <form class="formulario nueva-tarea">
-            <legend>Agrega una tarea nueva</legend>
+            <legend>${
+              editar ? "Editar tarea" : "Agrega una tarea nueva"
+            }</legend>
 
             <div class="campo">
               <label>Tarea:</label>
-              <input type="text" name="tarea" id="tarea" placeholder="añadir tarea al proyecto actual"/>
+              <input 
+              type="text" 
+              name="tarea" 
+              id="tarea" 
+              placeholder="${
+                tarea.nombre
+                  ? "edita la tarea"
+                  : "añadir tarea al proyecto actual"
+              }" 
+              value="${tarea.nombre ? tarea.nombre : ""}"/>
             </div>
 
             <div class="opciones">
-              <input type="submit" class="submit-nueva-tarea" value="Añadir tarea"/>
+              <input type="submit" class="submit-nueva-tarea" value="${
+                tarea.nombre ? "Editar tarea" : "Añadir tarea"
+              }"/>
               <button type="button" class="cerrar-modal">Cancelar</button>
             </div>
         </form>
@@ -120,27 +138,26 @@
       }
 
       if (e.target.classList.contains("submit-nueva-tarea")) {
-        submitNuevaTarea();
+        const nombreTarea = document.querySelector("#tarea").value.trim();
+
+        if (nombreTarea === "") {
+          mostrarAlerta(
+            "El nombre de la tarea es obligatorio",
+            "error",
+            document.querySelector(".formulario legend")
+          );
+
+          return;
+        }
+
+        if (editar) {
+          tarea.nombre = nombreTarea;
+          actualizarTarea(tarea);
+        } else agregarTarea(nombreTarea);
       }
     });
 
     document.querySelector(".dashboard").appendChild(modal);
-  }
-
-  function submitNuevaTarea() {
-    const tarea = document.querySelector("#tarea").value.trim();
-
-    if (tarea === "") {
-      mostrarAlerta(
-        "El nombre de la tarea es obligatorio",
-        "error",
-        document.querySelector(".formulario legend")
-      );
-
-      return;
-    }
-
-    agregarTarea(tarea);
   }
 
   function mostrarAlerta(mensaje, tipo, referencia) {
@@ -234,9 +251,15 @@
       const resultado = await respuesta.json();
 
       if (resultado.respuesta.tipo === "exito") {
+        Swal.fire(resultado.respuesta.mensaje, "", "success");
+
+        const modal = document.querySelector(".modal");
+        if (modal) modal.remove();
+
         tareas = tareas.map((tareaMemoria) => {
           if (tareaMemoria.id === id) {
             tareaMemoria.estado = estado;
+            tareaMemoria.nombre = nombre;
           }
 
           return tareaMemoria;
