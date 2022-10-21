@@ -7,3 +7,5 @@
 
 </div>
 <!-- Fin .dashboard -->
+
+<?php $script = '<script src="build/js/app.js"></script>'; ?>
