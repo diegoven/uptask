@@ -58,6 +58,9 @@
       btnEstadoTarea.classList.add(`${estados[tarea.estado].toLowerCase()}`);
       btnEstadoTarea.textContent = estados[tarea.estado];
       btnEstadoTarea.dataset.estadoTarea = tarea.estado;
+      btnEstadoTarea.onclick = function () {
+        cambiarEstadoTarea({ ...tarea });
+      };
 
       const btnEliminarTarea = document.createElement("button");
       btnEliminarTarea.classList.add("eliminar-tarea");
@@ -192,6 +195,50 @@
         };
 
         tareas = [...tareas, tareaObj];
+        mostrarTareas();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function cambiarEstadoTarea(tarea) {
+    const nuevoEstado = tarea.estado === "1" ? "0" : "1";
+    tarea.estado = nuevoEstado;
+
+    actualizarTarea(tarea);
+  }
+
+  async function actualizarTarea(tarea) {
+    const { estado, id, nombre } = tarea;
+
+    const datos = new FormData();
+    datos.append("id", id);
+    datos.append("nombre", nombre);
+    datos.append("estado", estado);
+    datos.append("url", obtenerProyecto());
+
+    // for (let valor of datos.values()) console.log(valor);
+
+    try {
+      const url = "http://localhost:3000/api/task/update";
+
+      const respuesta = await fetch(url, {
+        method: "POST",
+        body: datos,
+      });
+
+      const resultado = await respuesta.json();
+
+      if (resultado.respuesta.tipo === "exito") {
+        tareas = tareas.map((tareaMemoria) => {
+          if (tareaMemoria.id === id) {
+            tareaMemoria.estado = estado;
+          }
+
+          return tareaMemoria;
+        });
+
         mostrarTareas();
       }
     } catch (error) {
